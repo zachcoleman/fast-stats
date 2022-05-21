@@ -4,6 +4,9 @@ import numpy as np
 
 from .fast_stats import _tp_fp_fn_tn
 
+# from math import isnan  # for Rust returning float nan
+
+
 Result = Union[None, float]
 
 
