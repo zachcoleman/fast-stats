@@ -1,1 +1,1 @@
-from .stats import precision, recall
+from .stats import f1_score, precision, recall
