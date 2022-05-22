@@ -27,6 +27,7 @@ jobs:
           maturin develop -E dev
       - name: Test with pytest
         run: |
+          source .venv/bin/activate
           pytest
 
   linux:
