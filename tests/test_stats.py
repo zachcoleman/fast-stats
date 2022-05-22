@@ -52,7 +52,7 @@ import fast_stats
     ],
 )
 def test_precision(y_true, y_pred, zero_division, expected):
-    assert fast_stats.precision(y_true, y_pred, zero_division) == expected
+    assert fast_stats.binary_precision(y_true, y_pred, zero_division) == expected
 
 
 @pytest.mark.parametrize(
@@ -103,4 +103,4 @@ def test_precision(y_true, y_pred, zero_division, expected):
     ],
 )
 def test_recall(y_true, y_pred, zero_division, expected):
-    assert fast_stats.recall(y_true, y_pred, zero_division) == expected
+    assert fast_stats.binary_recall(y_true, y_pred, zero_division) == expected

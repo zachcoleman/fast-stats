@@ -1,2 +1,7 @@
-from .fast_stats import _fast_binary_precision, _fast_binary_recall, _tp_fp_fn_tn
-from .stats import f1_score, precision, recall
+from .fast_stats import (
+    _binary_f1_score_reqs,
+    _binary_precision_reqs,
+    _binary_recall_reqs,
+    _tp_fp_fn_tn,
+)
+from .stats import binary_f1_score, binary_precision, binary_recall
