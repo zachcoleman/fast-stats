@@ -1,6 +1,6 @@
 [project]
 name = "fast-stats"
-version = "0.0.2"
+version = "0.0.3"
 description = "A fast and simple library for calculating basic statistics"
 readme = "README.md"
 license = {text="Apache 2.0"}
