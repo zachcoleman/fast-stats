@@ -1,7 +1,6 @@
 name: builds
 
 on:
-  on:
   pull_request:
     types:
       - closed
