@@ -27,4 +27,5 @@ jobs:
           maturin develop --extras=test
       - name: Test with pytest
         run: |
-          pytest
+          source .venv/bin/activate
+          python -m pytest
