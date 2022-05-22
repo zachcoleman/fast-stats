@@ -1,5 +1,7 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/zachcoleman/fast-stats/tests/main)<img alt="PyPI - License" src="https://img.shields.io/pypi/l/fast-stats">![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fast-stats)![PyPI - Wheel](https://img.shields.io/pypi/wheel/fast-stats)
-
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/zachcoleman/fast-stats/tests/main)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fast-stats)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/fast-stats)
+[![License](https://img.shields.io/badge/license-Apache2.0-green)](./LICENSE)
 
 # fast-stats
 `fast-stats` is a fast and simple library for calculating simple statistics like precision, recall, and f1-score. The library uses Python to wrap performant 
