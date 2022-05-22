@@ -1,13 +1,13 @@
 use numpy::*;
 use pyo3::{exceptions, prelude::*};
-use std::{iter::zip};
+use std::iter::zip;
 
 fn sum<T>(arr: ndarray::ArrayD<T>) -> i128
 where
-T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
+    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
 {
     let mut sum = 0;
-    for row in arr.rows(){
+    for row in arr.rows() {
         sum = sum + row.iter().fold(0, |acc, elt| acc + elt.clone().into());
     }
     sum
@@ -48,7 +48,11 @@ fn tp_fp_fn_tn(
 #[pyfunction]
 #[pyo3(name = "_binary_precision_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
-fn py_binary_precision_reqs(_py: Python<'_>, actual: &PyAny, pred: &PyAny) -> PyResult<(i128, i128)> {
+fn py_binary_precision_reqs(
+    _py: Python<'_>,
+    actual: &PyAny,
+    pred: &PyAny,
+) -> PyResult<(i128, i128)> {
     // TODO macro this out
     // bool
     if let (Ok(i), Ok(j)) = (
@@ -154,13 +158,11 @@ where
     (sum(actual * &pred), sum(pred))
 }
 
-
 /// Array-based binary recall req calculating
 #[pyfunction]
 #[pyo3(name = "_binary_recall_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
 fn py_binary_recall_reqs(_py: Python<'_>, actual: &PyAny, pred: &PyAny) -> PyResult<(i128, i128)> {
-    
     // TODO macro this out
     // bool
     if let (Ok(i), Ok(j)) = (
@@ -270,10 +272,13 @@ where
 #[pyfunction]
 #[pyo3(name = "_binary_f1_score_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
-fn py_binary_f1_score_reqs(_py: Python<'_>, actual: &PyAny, pred: &PyAny) -> PyResult<(i128, i128, i128)> {
-    
+fn py_binary_f1_score_reqs(
+    _py: Python<'_>,
+    actual: &PyAny,
+    pred: &PyAny,
+) -> PyResult<(i128, i128, i128)> {
     // TODO macro this out
-    
+
     // bool
     if let (Ok(i), Ok(j)) = (
         actual.extract::<PyReadonlyArrayDyn<bool>>(),
@@ -371,7 +376,10 @@ fn py_binary_f1_score_reqs(_py: Python<'_>, actual: &PyAny, pred: &PyAny) -> PyR
     ))
 }
 
-fn binary_f1_score_reqs<T>(actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>) -> (i128, i128, i128)
+fn binary_f1_score_reqs<T>(
+    actual: ndarray::ArrayD<T>,
+    pred: ndarray::ArrayD<T>,
+) -> (i128, i128, i128)
 where
     T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
 {
