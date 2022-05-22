@@ -2,7 +2,6 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fast-stats)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/fast-stats)
 [![License](https://img.shields.io/badge/license-Apache2.0-green)](./LICENSE)
-![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 
 # fast-stats
 `fast-stats` is a fast and simple library for calculating simple statistics like precision, recall, and f1-score. The library uses Python to wrap performant 
