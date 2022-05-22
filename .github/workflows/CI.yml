@@ -20,6 +20,8 @@ jobs:
           toolchain: stable
       - name: Install dependencies
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install maturin
           maturin develop -E dev
