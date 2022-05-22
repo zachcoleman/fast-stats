@@ -1,6 +1,6 @@
 [project]
 name = "fast-stats"
-version = "0.0.1"
+version = "0.0.2"
 description = "A fast simple library for calculating basic statistics"
 readme = "README.md"
 license = {file = "LICENSE"}
