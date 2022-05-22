@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 pyo3 = { version = "0.16.3", features = ["extension-module"] }
 numpy = "0.16.2"
 ndarray = {version = "0.15.4" }
-# ndarray = {version = "0.15.4", features = ["rayon"]}
 num-traits = "0.2.15"
+## crates for possible parallel processing in Rust
+# ndarray = {version = "0.15.4", features = ["rayon"]}
 # rayon = "1.5.3"
