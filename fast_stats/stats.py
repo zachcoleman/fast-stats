@@ -40,7 +40,7 @@ def binary_precision(
         y_true, np.ndarray
     ), "y_true and y_pred must be numpy arrays"
 
-    tp, tp_fp = _binary_precision_reqs(y_true, y_pred)
+    tp, tp_fp, _ = _binary_precision_reqs(y_true, y_pred)
     return _precision(tp, tp_fp, zero_division)
 
 
@@ -52,7 +52,7 @@ def binary_recall(
         y_true, np.ndarray
     ), "y_true and y_pred must be numpy arrays"
 
-    tp, tp_fn = _binary_recall_reqs(y_true, y_pred)
+    tp, tp_fn, _ = _binary_recall_reqs(y_true, y_pred)
     return _recall(tp, tp_fn, zero_division)
 
 
