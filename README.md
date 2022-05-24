@@ -10,11 +10,22 @@ The project was developed using the [maturin](https://maturin.rs) framework.
 
 This project is still in development.
 
-### Limitations
+## Installation
+From PyPi:
+```shell
+pip install fast-stats
+```
+Build from source
+```
+maturin build -r -i=path/to/python
+pip install .../fast-stats/target/wheels/<whl file name>.whl
+```
+
+## Limitations
 - The Rust code does not enable releasing the GIL
 - Only binary operations are supported at this time
 
-### Running Tests
+## Running Tests
 Tests are run with `pytest`:
 ```shell
 pytest --cov=fast_stats tests
