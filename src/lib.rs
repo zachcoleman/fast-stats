@@ -1,43 +1,42 @@
 use numpy::*;
-use pyo3::{exceptions, prelude::*};
-use std::iter::zip;
+use pyo3::{exceptions, prelude::*, ffi::Py_TPFLAGS_LIST_SUBCLASS};
+use std::{iter::zip, collections::HashMap};
 mod binary;
 
-/// Get tp, fp, fn, tn counts by looping
+/// Confusion Matrix
 #[pyfunction]
-#[pyo3(name = "_tp_fp_fn_tn")]
-#[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
-pub fn tp_fp_fn_tn(
-    _py: Python<'_>,
-    actual: &PyArrayDyn<usize>,
-    pred: &PyArrayDyn<usize>,
-) -> (usize, usize, usize, usize) {
-    let mut _tp = 0;
-    let mut _fp: usize = 0;
-    let mut _fn: usize = 0;
-    let mut _tn: usize = 0;
-
+#[pyo3(name = "_confusion_matrix")]
+#[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, labels: List[int], /)")]
+fn confusion_matrix<'a>(
+    py: Python<'a>,
+    actual: &PyArrayDyn<i64>,
+    pred: &PyArrayDyn<i64>,
+    labels: Vec<i64>,
+) -> &'a PyArray2<i64>  {
+    let mut cm = ndarray::Array2::<i64>::from_elem((labels.len(), labels.len()), 0);
+    let idx_map: HashMap<i64, usize> = HashMap::from_iter(
+        labels
+        .iter()
+        .enumerate()
+        .map(|(x, y)| (*y, x))
+    );
+    
     for (y_pred, y_actual) in zip(
-        pred.readonly().as_array().iter(),
-        actual.readonly().as_array().iter(),
+        pred.to_owned_array().iter(),
+        actual.to_owned_array().iter(),
     ) {
-        if *y_pred == 1 && *y_actual == 1 {
-            _tp = _tp + 1;
-        } else if *y_pred == 1 && *y_actual == 0 {
-            _fp = _fp + 1;
-        } else if *y_pred == 0 && *y_actual == 1 {
-            _fn = _fn + 1;
-        } else {
-            _tn = _tn + 1;
-        }
+        let ix1 = *idx_map.get(y_pred).unwrap();
+        let ix2 = *idx_map.get(y_actual).unwrap();
+        *cm.get_mut((ix1, ix2)).unwrap() = *cm.get_mut((ix1, ix2)).unwrap() + 1;
     }
-    (_tp, _fp, _fn, _tn)
+
+    return &PyArray2::from_array(py, &cm);
 }
 
 /// A Python module implemented in Rust.
 #[pymodule]
 fn fast_stats(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(tp_fp_fn_tn, m)?)?;
+    m.add_function(wrap_pyfunction!(confusion_matrix, m)?)?;
     m.add_function(wrap_pyfunction!(binary::py_binary_precision_reqs, m)?)?;
     m.add_function(wrap_pyfunction!(binary::py_binary_recall_reqs, m)?)?;
     m.add_function(wrap_pyfunction!(binary::py_binary_f1_score_reqs, m)?)?;
