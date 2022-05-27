@@ -23,10 +23,6 @@ pip install .../fast-stats/target/wheels/<whl file name>.whl
 
 ## Limitations
 - The Rust code does not enable releasing the GIL
-- Only binary operations are supported at this time
 
 ## Running Tests
-Tests are run with `pytest`:
-```shell
-pytest --cov=fast_stats tests
-```
+Tests are run with `pytest`.
