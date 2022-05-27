@@ -2,14 +2,11 @@ from typing import Union
 
 import numpy as np
 
-from .fast_stats import (
+from ._fast_stats_ext import (
     _binary_f1_score_reqs,
     _binary_precision_reqs,
     _binary_recall_reqs,
 )
-
-# from math import isnan  # for Rust returning float nan
-
 
 Result = Union[None, float]
 
@@ -36,11 +33,14 @@ def binary_precision(
     y_true: np.ndarray, y_pred: np.ndarray, zero_division: str = "none"
 ) -> Result:
     assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert isinstance(y_pred, np.ndarray) and isinstance(
-        y_true, np.ndarray
+    assert all(
+        [
+            isinstance(y_pred, np.ndarray),
+            isinstance(y_true, np.ndarray),
+        ]
     ), "y_true and y_pred must be numpy arrays"
 
-    tp, tp_fp = _binary_precision_reqs(y_true, y_pred)
+    tp, tp_fp, _ = _binary_precision_reqs(y_true, y_pred)
     return _precision(tp, tp_fp, zero_division)
 
 
@@ -48,20 +48,26 @@ def binary_recall(
     y_true: np.ndarray, y_pred: np.ndarray, zero_division: str = "none"
 ) -> Result:
     assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert isinstance(y_pred, np.ndarray) and isinstance(
-        y_true, np.ndarray
+    assert all(
+        [
+            isinstance(y_pred, np.ndarray),
+            isinstance(y_true, np.ndarray),
+        ]
     ), "y_true and y_pred must be numpy arrays"
 
-    tp, tp_fn = _binary_recall_reqs(y_true, y_pred)
+    tp, tp_fn, _ = _binary_recall_reqs(y_true, y_pred)
     return _recall(tp, tp_fn, zero_division)
 
 
 def binary_f1_score(
     y_true: np.ndarray, y_pred: np.ndarray, zero_division: str = "none"
-):
+) -> Result:
     assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert isinstance(y_pred, np.ndarray) and isinstance(
-        y_true, np.ndarray
+    assert all(
+        [
+            isinstance(y_pred, np.ndarray),
+            isinstance(y_true, np.ndarray),
+        ]
     ), "y_true and y_pred must be numpy arrays"
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(y_true, y_pred)
