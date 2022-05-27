@@ -29,7 +29,7 @@ where
         HashMap::from_iter(labels.iter().enumerate().map(|(x, y)| (*y, x)));
 
     for (y_pred, y_actual) in zip(pred.to_owned_array().iter(), actual.to_owned_array().iter()) {
-        if let (Some(ix1), Some(ix2)) = (idx_map.get(y_pred), idx_map.get(y_actual)) {
+        if let (Some(ix1), Some(ix2)) = (idx_map.get(y_actual), idx_map.get(y_pred)) {
             *cm.get_mut((*ix1, *ix2)).unwrap() = *cm.get_mut((*ix1, *ix2)).unwrap() + 1;
         }
     }
