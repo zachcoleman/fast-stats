@@ -8,9 +8,6 @@ from ._fast_stats_ext import (
     _binary_recall_reqs,
 )
 
-# from math import isnan  # for Rust returning float nan
-
-
 Result = Union[None, float]
 
 

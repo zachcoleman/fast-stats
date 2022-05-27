@@ -8,7 +8,7 @@ mod utils;
 #[pymodule]
 fn _fast_stats_ext(_py: Python, m: &PyModule) -> PyResult<()> {
     // cm
-    m.add_function(wrap_pyfunction!(cm::confusion_matrix, m)?)?;
+    m.add_function(wrap_pyfunction!(cm::py_confusion_matrix, m)?)?;
 
     // utils
     m.add_function(wrap_pyfunction!(utils::py_unique, m)?)?;
