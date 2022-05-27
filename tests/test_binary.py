@@ -124,8 +124,8 @@ def test_recall(y_true, y_pred, zero_division, expected):
         (
             np.zeros(4, dtype=np.uint64),
             np.zeros(4, dtype=np.uint64),
-            "zero",
-            0.0,
+            "none",
+            None,
         ),  # No TP & No FP, & No FN
         (
             np.ones(4, dtype=np.uint64),
@@ -142,6 +142,9 @@ def test_recall(y_true, y_pred, zero_division, expected):
     ],
 )
 def test_f1(y_true, y_pred, zero_division, expected):
-    assert np.allclose(
-        fast_stats.binary_f1_score(y_true, y_pred, zero_division), expected
-    )
+    if expected is None:
+        assert fast_stats.binary_f1_score(y_true, y_pred, zero_division) is None
+    else:
+        assert np.allclose(
+            fast_stats.binary_f1_score(y_true, y_pred, zero_division), expected
+        )
