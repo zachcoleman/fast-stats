@@ -8,6 +8,9 @@ edition = "2021"
 name = "fast_stats"
 crate-type = ["cdylib"]
 
+[package.metadata.maturin]
+name = "fast_stats._fast_stats_ext"
+
 [dependencies]
 pyo3 = { version = "0.16.3", features = ["extension-module"] }
 numpy = "0.16.2"

@@ -2,7 +2,7 @@ from typing import Union
 
 import numpy as np
 
-from .fast_stats import (
+from ._fast_stats_ext import (
     _binary_f1_score_reqs,
     _binary_precision_reqs,
     _binary_recall_reqs,
@@ -58,7 +58,7 @@ def binary_recall(
 
 def binary_f1_score(
     y_true: np.ndarray, y_pred: np.ndarray, zero_division: str = "none"
-):
+) -> Result:
     assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
     assert isinstance(y_pred, np.ndarray) and isinstance(
         y_true, np.ndarray

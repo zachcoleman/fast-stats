@@ -82,7 +82,7 @@ where
     )
 }
 
-/// Dispatching!
+/// dispatching
 fn dispatch(
     _py: Python<'_>,
     stat: &str,
@@ -115,8 +115,7 @@ fn dispatch(
             }
             _ => {
                 return Err(PyErr::new::<exceptions::PyTypeError, _>(
-                    "Internal Error: not implemented stat type",
-                ));
+                "Internal Error: not implemented stat type",));
             }
         }
     }
@@ -378,6 +377,6 @@ fn dispatch(
     }
 
     Err(PyErr::new::<exceptions::PyTypeError, _>(
-        "Unsupport numpy dtype",
+        "Unsupported numpy dtype",
     ))
 }
