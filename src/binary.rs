@@ -115,7 +115,8 @@ fn dispatch(
             }
             _ => {
                 return Err(PyErr::new::<exceptions::PyTypeError, _>(
-                "Internal Error: not implemented stat type",));
+                    "Internal Error: not implemented stat type",
+                ));
             }
         }
     }

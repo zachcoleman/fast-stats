@@ -9,7 +9,7 @@ mod utils;
 fn _fast_stats_ext(_py: Python, m: &PyModule) -> PyResult<()> {
     // cm
     m.add_function(wrap_pyfunction!(cm::confusion_matrix, m)?)?;
-    
+
     // utils
     m.add_function(wrap_pyfunction!(utils::py_unique, m)?)?;
 
@@ -17,6 +17,6 @@ fn _fast_stats_ext(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(binary::py_binary_precision_reqs, m)?)?;
     m.add_function(wrap_pyfunction!(binary::py_binary_recall_reqs, m)?)?;
     m.add_function(wrap_pyfunction!(binary::py_binary_f1_score_reqs, m)?)?;
-    
+
     Ok(())
 }

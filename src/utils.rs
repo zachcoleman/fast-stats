@@ -1,6 +1,6 @@
 use numpy::*;
 use pyo3::{prelude::*, types::PySet};
-use std::{collections::HashSet};
+use std::collections::HashSet;
 
 /// unique
 #[pyfunction]
@@ -10,15 +10,15 @@ pub fn py_unique<'a>(_py: Python<'a>, arr: &PyAny) -> PyResult<&'a PySet> {
     dispatch(_py, arr)
 }
 
-// &PyArrayDyn? 
+// &PyArrayDyn?
 fn unique<'a, T>(py: Python<'a>, arr: numpy::PyReadonlyArrayDyn<T>) -> PyResult<&'a PySet>
 where
-    T: Clone + numpy::Element + std::hash::Hash + std::cmp::Eq + pyo3::ToPyObject, 
+    T: Clone + numpy::Element + std::hash::Hash + std::cmp::Eq + pyo3::ToPyObject,
 {
     let mut track = HashSet::<T>::new();
     let mut ret: Vec<T> = vec![];
-    for val in arr.readonly().as_array().iter(){
-        if !track.contains(val){
+    for val in arr.readonly().as_array().iter() {
+        if !track.contains(val) {
             track.insert(val.clone());
             ret.push(val.clone());
         }
@@ -28,10 +28,7 @@ where
 }
 
 /// dispatching
-fn dispatch<'a>(
-    py: Python<'a>,
-    actual: &PyAny,
-) -> PyResult<&'a PySet> {
+fn dispatch<'a>(py: Python<'a>, actual: &PyAny) -> PyResult<&'a PySet> {
     // bool
     if let Ok(i) = actual.extract::<PyReadonlyArrayDyn<bool>>() {
         return unique::<bool>(py, i);
@@ -45,7 +42,6 @@ fn dispatch<'a>(
     // i16
     if let Ok(i) = actual.extract::<PyReadonlyArrayDyn<i16>>() {
         return unique::<i16>(py, i);
-        
     }
 
     // i32
