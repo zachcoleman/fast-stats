@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache2.0-green)](./LICENSE)
 
 # fast-stats
-`fast-stats` is a fast and simple library for calculating simple statistics like precision, recall, and f1-score. The library uses Python to wrap performant 
+`fast-stats` is a fast and simple library for calculating basic statistics such as: precision, recall, and f1-score. `fast-stats` supports the calculation of confusion matrices.
 
 The project was developed using the [maturin](https://maturin.rs) framework. 
 
@@ -23,10 +23,6 @@ pip install .../fast-stats/target/wheels/<whl file name>.whl
 
 ## Limitations
 - The Rust code does not enable releasing the GIL
-- Only binary operations are supported at this time
 
 ## Running Tests
-Tests are run with `pytest`:
-```shell
-pytest --cov=fast_stats tests
-```
+Tests are run with `pytest`.
