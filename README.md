@@ -11,7 +11,7 @@ The project was developed using the [maturin](https://maturin.rs) framework.
 This project is still in development.
 
 ## Installation
-From PyPi:
+From PyPI:
 ```shell
 pip install fast-stats
 ```

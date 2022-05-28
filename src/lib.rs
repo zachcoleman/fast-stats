@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod binary;
 mod cm;
+mod dispatch;
 mod utils;
 
 /// A Python module implemented in Rust.

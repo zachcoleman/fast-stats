@@ -52,5 +52,5 @@ from fast_stats import confusion_matrix
         ),  # 3x3
     ],
 )
-def test_precision(y_true, y_pred, expected):
+def test_confusion_matrix(y_true, y_pred, expected):
     assert np.allclose(confusion_matrix(y_true, y_pred), expected)
