@@ -10,21 +10,32 @@ pub fn py_unique<'a>(_py: Python<'a>, arr: &PyAny) -> PyResult<&'a PySet> {
     dispatch(_py, arr)
 }
 
-// &PyArrayDyn?
+/// ndarray unique
 fn unique<'a, T>(py: Python<'a>, arr: numpy::PyReadonlyArrayDyn<T>) -> PyResult<&'a PySet>
 where
-    T: Clone + numpy::Element + std::hash::Hash + std::cmp::Eq + pyo3::ToPyObject,
+    T: Clone
+        + std::marker::Send
+        + numpy::Element
+        + std::hash::Hash
+        + std::cmp::Eq
+        + pyo3::ToPyObject,
 {
-    let mut track = HashSet::<T>::new();
-    let mut ret: Vec<T> = vec![];
-    for val in arr.readonly().as_array().iter() {
-        if !track.contains(val) {
-            track.insert(val.clone());
-            ret.push(val.clone());
-        }
-    }
+    let arr = arr.to_owned_array();
 
-    PySet::new(py, ret.as_slice())
+    let threadable = |arr: ndarray::ArrayD<T>| -> Vec<T> {
+        py.allow_threads(move || {
+            let mut track = HashSet::<T>::new();
+            let mut ret: Vec<T> = vec![];
+            for val in arr.iter() {
+                if !track.contains(val) {
+                    track.insert(val.clone());
+                    ret.push(val.clone());
+                }
+            }
+            return ret;
+        })
+    };
+    PySet::new(py, threadable(arr).as_slice())
 }
 
 /// dispatching

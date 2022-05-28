@@ -1,3 +1,4 @@
+use ndarray::ArrayD;
 use numpy::*;
 use pyo3::prelude::*;
 use std::{collections::HashMap, iter::zip};
@@ -22,19 +23,27 @@ pub fn confusion_matrix<'a, T>(
     labels: Vec<T>,
 ) -> &'a PyArray2<usize>
 where
-    T: Copy + Clone + numpy::Element + std::hash::Hash + std::cmp::Eq,
+    T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
-    let mut cm = ndarray::Array2::<usize>::from_elem((labels.len(), labels.len()), 0);
-    let idx_map: HashMap<T, usize> =
-        HashMap::from_iter(labels.iter().enumerate().map(|(x, y)| (*y, x)));
+    let actual = actual.to_owned_array();
+    let pred = pred.to_owned_array();
 
-    for (y_pred, y_actual) in zip(pred.to_owned_array().iter(), actual.to_owned_array().iter()) {
-        if let (Some(ix1), Some(ix2)) = (idx_map.get(y_actual), idx_map.get(y_pred)) {
-            *cm.get_mut((*ix1, *ix2)).unwrap() = *cm.get_mut((*ix1, *ix2)).unwrap() + 1;
-        }
-    }
+    let threadable = |actual: ArrayD<T>, pred: ArrayD<T>| -> ndarray::Array2<usize> {
+        py.allow_threads(move || {
+            let mut cm = ndarray::Array2::<usize>::from_elem((labels.len(), labels.len()), 0);
+            let idx_map: HashMap<T, usize> =
+                HashMap::from_iter(labels.iter().enumerate().map(|(x, y)| (*y, x)));
 
-    return PyArray2::from_array(py, &cm);
+            for (y_pred, y_actual) in zip(pred.iter(), actual.iter()) {
+                if let (Some(ix1), Some(ix2)) = (idx_map.get(y_actual), idx_map.get(y_pred)) {
+                    *cm.get_mut((*ix1, *ix2)).unwrap() = *cm.get_mut((*ix1, *ix2)).unwrap() + 1;
+                }
+            }
+            return cm;
+        })
+    };
+
+    return PyArray2::from_array(py, &threadable(actual, pred));
 }
 
 /// dispatching
