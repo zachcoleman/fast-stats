@@ -6,11 +6,11 @@ use pyo3::{exceptions, prelude::*};
 #[pyo3(name = "_binary_precision_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
 pub fn py_binary_precision_reqs(
-    _py: Python<'_>,
+    py: Python<'_>,
     actual: &PyAny,
     pred: &PyAny,
 ) -> PyResult<(i128, i128, i128)> {
-    dispatch(_py, "precision", actual, pred)
+    dispatch(py, "precision", actual, pred)
 }
 
 /// Binary recall computational requirements
@@ -18,11 +18,11 @@ pub fn py_binary_precision_reqs(
 #[pyo3(name = "_binary_recall_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
 pub fn py_binary_recall_reqs(
-    _py: Python<'_>,
+    py: Python<'_>,
     actual: &PyAny,
     pred: &PyAny,
 ) -> PyResult<(i128, i128, i128)> {
-    dispatch(_py, "recall", actual, pred)
+    dispatch(py, "recall", actual, pred)
 }
 
 /// Binary f1 computational requirements
@@ -30,13 +30,14 @@ pub fn py_binary_recall_reqs(
 #[pyo3(name = "_binary_f1_score_reqs")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, /)")]
 pub fn py_binary_f1_score_reqs(
-    _py: Python<'_>,
+    py: Python<'_>,
     actual: &PyAny,
     pred: &PyAny,
 ) -> PyResult<(i128, i128, i128)> {
-    dispatch(_py, "f1", actual, pred)
+    dispatch(py, "f1", actual, pred)
 }
 
+// move into utils?
 fn custom_sum<T>(arr: ndarray::ArrayD<T>) -> i128
 where
     T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
@@ -49,42 +50,54 @@ where
 }
 
 fn binary_precision_reqs<T>(
+    py: Python<'_>,
     actual: ndarray::ArrayD<T>,
     pred: ndarray::ArrayD<T>,
 ) -> (i128, i128, i128)
 where
-    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
+    T: Clone + std::marker::Send + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
 {
-    // TP, TP + FP
-    (custom_sum(actual * &pred), custom_sum(pred), 0)
+    // TP, TP + FP, 0
+    py.allow_threads(move || {
+        return (custom_sum(actual * &pred), custom_sum(pred), 0);
+    })
 }
 
-fn binary_recall_reqs<T>(actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>) -> (i128, i128, i128)
+fn binary_recall_reqs<T>(
+    py: Python<'_>,
+    actual: ndarray::ArrayD<T>,
+    pred: ndarray::ArrayD<T>,
+) -> (i128, i128, i128)
 where
-    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
+    T: Clone + std::marker::Send + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
 {
-    // TP, TP + FN
-    (custom_sum(&actual * pred), custom_sum(actual), 0)
+    // TP, TP + FN, 0
+    py.allow_threads(move || {
+        return (custom_sum(&actual * pred), custom_sum(actual), 0);
+    })
 }
 
 fn binary_f1_score_reqs<T>(
+    py: Python<'_>,
     actual: ndarray::ArrayD<T>,
     pred: ndarray::ArrayD<T>,
 ) -> (i128, i128, i128)
 where
-    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
+    T: Clone + std::marker::Send + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
 {
     // TP, TP + FP, TP + FN
-    (
-        custom_sum(&actual * &pred),
-        custom_sum(pred),
-        custom_sum(actual),
-    )
+    py.allow_threads(move || {
+        return (
+            custom_sum(&actual * &pred),
+            custom_sum(pred),
+            custom_sum(actual),
+        );
+    })
 }
 
 /// dispatching
 fn dispatch(
-    _py: Python<'_>,
+    py: Python<'_>,
     stat: &str,
     actual: &PyAny,
     pred: &PyAny,
@@ -97,18 +110,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<u8>(
+                    py,
                     i.to_owned_array().mapv(|e| e as u8),
                     j.to_owned_array().mapv(|e| e as u8),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<u8>(
+                    py,
                     i.to_owned_array().mapv(|e| e as u8),
                     j.to_owned_array().mapv(|e| e as u8),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<u8>(
+                    py,
                     i.to_owned_array().mapv(|e| e as u8),
                     j.to_owned_array().mapv(|e| e as u8),
                 ));
@@ -129,18 +145,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<i8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<i8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<i8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -161,18 +180,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<i16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<i16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<i16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -193,18 +215,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<i32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<i32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<i32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -225,18 +250,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<i64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<i64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<i64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -257,18 +285,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<u8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<u8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<u8>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -289,18 +320,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<u16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<u16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<u16>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -321,18 +355,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<u32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<u32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<u32>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
@@ -353,18 +390,21 @@ fn dispatch(
         match stat {
             "recall" => {
                 return Ok(binary_recall_reqs::<u64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "precision" => {
                 return Ok(binary_precision_reqs::<u64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));
             }
             "f1" => {
                 return Ok(binary_f1_score_reqs::<u64>(
+                    py,
                     i.to_owned_array(),
                     j.to_owned_array(),
                 ));

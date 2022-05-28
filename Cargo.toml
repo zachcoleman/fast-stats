@@ -1,9 +1,8 @@
 [package]
 name = "fast-stats"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "fast_stats"
 crate-type = ["cdylib"]
@@ -16,6 +15,6 @@ pyo3 = { version = "0.16.3", features = ["extension-module"] }
 numpy = "0.16.2"
 ndarray = {version = "0.15.4" }
 num-traits = "0.2.15"
-## crates for possible parallel processing in Rust
+## crates for parallel processing in Rust
 # ndarray = {version = "0.15.4", features = ["rayon"]}
 # rayon = "1.5.3"
