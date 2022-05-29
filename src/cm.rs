@@ -3,30 +3,40 @@ use numpy::*;
 use pyo3::prelude::*;
 use std::{collections::HashMap, iter::zip};
 
+use crate::numpy_dispatch_bool;
+
 /// Confusion Matrix
 #[pyfunction]
 #[pyo3(name = "_confusion_matrix")]
 #[pyo3(text_signature = "(actual: np.ndarray, pred: np.ndarray, labels: List[int], /)")]
 pub fn py_confusion_matrix<'a>(
     py: Python<'a>,
-    actual: &PyAny,
-    pred: &PyAny,
-    labels: &PyAny,
+    actual: &'a PyAny,
+    pred: &'a PyAny,
+    labels: &'a PyAny,
 ) -> PyResult<&'a PyArray2<usize>> {
-    dispatch(py, actual, pred, labels)
+    numpy_dispatch_bool!(
+        py,
+        confusion_matrix,
+        PyResult<&'a PyArray2<usize>>,
+        actual,
+        pred,
+        labels
+    )
 }
 
-pub fn confusion_matrix<'a, T>(
+fn confusion_matrix<'a, T>(
     py: Python<'a>,
-    actual: &PyArrayDyn<T>,
-    pred: &PyArrayDyn<T>,
-    labels: Vec<T>,
-) -> &'a PyArray2<usize>
+    actual: PyReadonlyArrayDyn<T>,
+    pred: PyReadonlyArrayDyn<T>,
+    labels: PyReadonlyArrayDyn<T>,
+) -> PyResult<&'a PyArray2<usize>>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
     let actual = actual.to_owned_array();
     let pred = pred.to_owned_array();
+    let labels = labels.to_vec().unwrap();
 
     let threadable = |actual: ArrayD<T>, pred: ArrayD<T>| -> ndarray::Array2<usize> {
         py.allow_threads(move || {
@@ -43,98 +53,5 @@ where
         })
     };
 
-    return PyArray2::from_array(py, &threadable(actual, pred));
-}
-
-/// dispatching
-fn dispatch<'a>(
-    py: Python<'a>,
-    actual: &PyAny,
-    pred: &PyAny,
-    labels: &PyAny,
-) -> PyResult<&'a PyArray2<usize>> {
-    // bool
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<bool>>(),
-        pred.extract::<PyReadonlyArrayDyn<bool>>(),
-        labels.extract::<Vec<bool>>(),
-    ) {
-        return Ok(confusion_matrix::<bool>(py, &i, &j, l));
-    }
-
-    // i8
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<i8>>(),
-        pred.extract::<PyReadonlyArrayDyn<i8>>(),
-        labels.extract::<Vec<i8>>(),
-    ) {
-        return Ok(confusion_matrix::<i8>(py, &i, &j, l));
-    }
-
-    // i16
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<i16>>(),
-        pred.extract::<PyReadonlyArrayDyn<i16>>(),
-        labels.extract::<Vec<i16>>(),
-    ) {
-        return Ok(confusion_matrix::<i16>(py, &i, &j, l));
-    }
-
-    // i32
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<i32>>(),
-        pred.extract::<PyReadonlyArrayDyn<i32>>(),
-        labels.extract::<Vec<i32>>(),
-    ) {
-        return Ok(confusion_matrix::<i32>(py, &i, &j, l));
-    }
-
-    // i64
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<i64>>(),
-        pred.extract::<PyReadonlyArrayDyn<i64>>(),
-        labels.extract::<Vec<i64>>(),
-    ) {
-        return Ok(confusion_matrix::<i64>(py, &i, &j, l));
-    }
-
-    // u8
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<u8>>(),
-        pred.extract::<PyReadonlyArrayDyn<u8>>(),
-        labels.extract::<Vec<u8>>(),
-    ) {
-        return Ok(confusion_matrix::<u8>(py, &i, &j, l));
-    }
-
-    // u16
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<u16>>(),
-        pred.extract::<PyReadonlyArrayDyn<u16>>(),
-        labels.extract::<Vec<u16>>(),
-    ) {
-        return Ok(confusion_matrix::<u16>(py, &i, &j, l));
-    }
-
-    // u32
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<u32>>(),
-        pred.extract::<PyReadonlyArrayDyn<u32>>(),
-        labels.extract::<Vec<u32>>(),
-    ) {
-        return Ok(confusion_matrix::<u32>(py, &i, &j, l));
-    }
-
-    // u64
-    if let (Ok(i), Ok(j), Ok(l)) = (
-        actual.extract::<PyReadonlyArrayDyn<u64>>(),
-        pred.extract::<PyReadonlyArrayDyn<u64>>(),
-        labels.extract::<Vec<u64>>(),
-    ) {
-        return Ok(confusion_matrix::<u64>(py, &i, &j, l));
-    }
-
-    Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-        "Unsupported numpy dtype",
-    ))
+    Ok(PyArray2::from_array(py, &threadable(actual, pred)))
 }
