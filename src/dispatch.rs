@@ -4,11 +4,6 @@ macro_rules! numpy_dispatch_no_bool {
     // single arg function
     ($py:ident, $f:ident, $ret_type:ty, $arr:ident) => {
         |x: &'a PyAny| -> $ret_type {
-            if let Ok(i) = x.extract::<numpy::PyReadonlyArrayDyn<bool>>() {
-                let i =
-                    PyArrayDyn::from_array($py, &i.to_owned_array().mapv(|e| e as u8)).readonly();
-                return $f::<u8>($py, i);
-            }
             if let Ok(i) = x.extract::<numpy::PyReadonlyArrayDyn<i8>>() {
                 return $f::<i8>($py, i);
             }
