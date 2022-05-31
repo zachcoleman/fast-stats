@@ -15,11 +15,11 @@ pub fn py_precision<'a>(
     actual: &'a PyAny,
     pred: &'a PyAny,
     labels: &'a PyAny,
-) -> PyResult<&'a PyArray2<usize>> {
+) -> PyResult<&'a PyArray2<u32>> {
     numpy_dispatch_bool!(
         py,
         precision,
-        PyResult<&'a PyArray2<usize>>,
+        PyResult<&'a PyArray2<u32>>,
         actual,
         pred,
         labels
@@ -37,11 +37,11 @@ pub fn py_recall<'a>(
     actual: &'a PyAny,
     pred: &'a PyAny,
     labels: &'a PyAny,
-) -> PyResult<&'a PyArray2<usize>> {
+) -> PyResult<&'a PyArray2<u32>> {
     numpy_dispatch_bool!(
         py,
         recall,
-        PyResult<&'a PyArray2<usize>>,
+        PyResult<&'a PyArray2<u32>>,
         actual,
         pred,
         labels
@@ -59,11 +59,11 @@ pub fn py_f1_score<'a>(
     actual: &'a PyAny,
     pred: &'a PyAny,
     labels: &'a PyAny,
-) -> PyResult<&'a PyArray2<usize>> {
+) -> PyResult<&'a PyArray2<u32>> {
     numpy_dispatch_bool!(
         py,
         f1_score,
-        PyResult<&'a PyArray2<usize>>,
+        PyResult<&'a PyArray2<u32>>,
         actual,
         pred,
         labels
@@ -75,7 +75,7 @@ fn precision<'a, T>(
     actual: PyReadonlyArrayDyn<T>,
     pred: PyReadonlyArrayDyn<T>,
     labels: PyReadonlyArrayDyn<T>,
-) -> PyResult<&'a PyArray2<usize>>
+) -> PyResult<&'a PyArray2<u32>>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
@@ -84,10 +84,10 @@ where
     let labels = labels.to_vec().unwrap();
 
     let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<usize> {
+        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<u32> {
             py.allow_threads(move || {
                 let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<usize>::from_elem((cm.shape()[0], 2), 0);
+                let mut ret = ndarray::Array2::<u32>::from_elem((cm.shape()[0], 2), 0);
                 for (idx, col) in cm.columns().into_iter().enumerate() {
                     // get TP
                     *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();
@@ -105,7 +105,7 @@ fn recall<'a, T>(
     actual: PyReadonlyArrayDyn<T>,
     pred: PyReadonlyArrayDyn<T>,
     labels: PyReadonlyArrayDyn<T>,
-) -> PyResult<&'a PyArray2<usize>>
+) -> PyResult<&'a PyArray2<u32>>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
@@ -114,10 +114,10 @@ where
     let labels = labels.to_vec().unwrap();
 
     let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<usize> {
+        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<u32> {
             py.allow_threads(move || {
                 let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<usize>::from_elem((cm.shape()[0], 2), 0);
+                let mut ret = ndarray::Array2::<u32>::from_elem((cm.shape()[0], 2), 0);
                 for (idx, row) in cm.rows().into_iter().enumerate() {
                     // get TP
                     *ret.get_mut((idx, 0)).unwrap() = *row.get(idx).unwrap();
@@ -135,7 +135,7 @@ fn f1_score<'a, T>(
     actual: PyReadonlyArrayDyn<T>,
     pred: PyReadonlyArrayDyn<T>,
     labels: PyReadonlyArrayDyn<T>,
-) -> PyResult<&'a PyArray2<usize>>
+) -> PyResult<&'a PyArray2<u32>>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
@@ -144,10 +144,10 @@ where
     let labels = labels.to_vec().unwrap();
 
     let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<usize> {
+        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<u32> {
             py.allow_threads(move || {
                 let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<usize>::from_elem((cm.shape()[0], 3), 0);
+                let mut ret = ndarray::Array2::<u32>::from_elem((cm.shape()[0], 3), 0);
                 for (idx, col) in cm.columns().into_iter().enumerate() {
                     // get TP
                     *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();

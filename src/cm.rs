@@ -16,11 +16,11 @@ pub fn py_confusion_matrix<'a>(
     actual: &'a PyAny,
     pred: &'a PyAny,
     labels: &'a PyAny,
-) -> PyResult<&'a PyArray2<usize>> {
+) -> PyResult<&'a PyArray2<u32>> {
     numpy_dispatch_bool!(
         py,
         confusion_matrix,
-        PyResult<&'a PyArray2<usize>>,
+        PyResult<&'a PyArray2<u32>>,
         actual,
         pred,
         labels
@@ -32,7 +32,7 @@ fn confusion_matrix<'a, T>(
     actual: PyReadonlyArrayDyn<T>,
     pred: PyReadonlyArrayDyn<T>,
     labels: PyReadonlyArrayDyn<T>,
-) -> PyResult<&'a PyArray2<usize>>
+) -> PyResult<&'a PyArray2<u32>>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
@@ -40,7 +40,7 @@ where
     let pred = pred.to_owned_array();
     let labels = labels.to_vec().unwrap();
 
-    let threadable = |actual: ArrayD<T>, pred: ArrayD<T>| -> ndarray::Array2<usize> {
+    let threadable = |actual: ArrayD<T>, pred: ArrayD<T>| -> ndarray::Array2<u32> {
         py.allow_threads(move || return confusion_matrix_owned(actual, pred, labels))
     };
 
@@ -51,11 +51,11 @@ pub fn confusion_matrix_owned<T>(
     actual: ndarray::ArrayD<T>,
     pred: ndarray::ArrayD<T>,
     labels: Vec<T>,
-) -> ndarray::Array2<usize>
+) -> ndarray::Array2<u32>
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
-    let mut cm = ndarray::Array2::<usize>::from_elem((labels.len(), labels.len()), 0);
+    let mut cm = ndarray::Array2::<u32>::from_elem((labels.len(), labels.len()), 0);
     let idx_map: HashMap<T, usize> =
         HashMap::from_iter(labels.iter().enumerate().map(|(x, y)| (*y, x)));
 
