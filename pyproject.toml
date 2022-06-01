@@ -1,6 +1,6 @@
 [project]
 name = "fast-stats"
-version = "1.0.2"
+version = "1.1.0"
 description = "A fast and simple library for calculating basic statistics"
 readme = "README.md"
 license = {text="Apache 2.0"}
@@ -29,6 +29,7 @@ repository = "https://github.com/zachcoleman/fast-stats"
 
 [project.optional-dependencies]
 test = [
+  "dictdiffer",
   "pytest",
   "pytest-cov[all]"
 ]
