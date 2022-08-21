@@ -8,6 +8,8 @@
 
 The project was developed using the [maturin](https://maturin.rs) framework.
 
+See docs here: https://zachcoleman.github.io/fast-stats/
+
 ## Installation
 From PyPI:
 ```shell
