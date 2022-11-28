@@ -24,7 +24,7 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install maturin
-          maturin develop --extras=test
+          maturin develop --extras=dev
       - name: Test with pytest
         run: |
           source .venv/bin/activate
