@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/zachcoleman/fast-stats/tests/main)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/zachcoleman/fast-stats/tests.yml?branch=main)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fast-stats)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/fast-stats)
 [![License](https://img.shields.io/badge/license-Apache2.0-green)](./LICENSE)
