@@ -4,6 +4,7 @@ mod binary;
 mod cm;
 mod dispatch;
 mod multiclass;
+mod quant;
 mod utils;
 
 /// A Python module implemented in Rust.
@@ -14,6 +15,9 @@ fn _fast_stats_ext(_py: Python, m: &PyModule) -> PyResult<()> {
 
     // utils
     m.add_function(wrap_pyfunction!(utils::py_unique, m)?)?;
+    m.add_function(wrap_pyfunction!(utils::py_int_sum, m)?)?;
+    m.add_function(wrap_pyfunction!(utils::py_float_sum, m)?)?;
+    m.add_function(wrap_pyfunction!(utils::py_sum, m)?)?;
 
     // binary calcs
     m.add_function(wrap_pyfunction!(binary::py_binary_precision_reqs, m)?)?;
@@ -24,6 +28,9 @@ fn _fast_stats_ext(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(multiclass::py_precision, m)?)?;
     m.add_function(wrap_pyfunction!(multiclass::py_recall, m)?)?;
     m.add_function(wrap_pyfunction!(multiclass::py_f1_score, m)?)?;
+
+    // quant
+    m.add_function(wrap_pyfunction!(quant::py_mean, m)?)?;
 
     Ok(())
 }

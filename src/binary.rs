@@ -2,6 +2,7 @@ use numpy::*;
 use pyo3::prelude::*;
 
 use crate::numpy_dispatch_no_bool;
+use crate::utils::custom_int_sum;
 
 /// Binary precision computational requirements
 #[pyfunction]
@@ -90,18 +91,6 @@ pub fn py_binary_f1_score_reqs<'a>(
     )
 }
 
-// move into utils?
-fn custom_sum<T>(arr: ndarray::ArrayD<T>) -> i128
-where
-    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
-{
-    let mut sum = 0;
-    for row in arr.rows() {
-        sum = sum + row.iter().fold(0, |acc, elt| acc + elt.clone().into());
-    }
-    sum
-}
-
 fn binary_precision_reqs<'a, T>(
     py: Python<'a>,
     actual: numpy::PyReadonlyArrayDyn<T>,
@@ -120,7 +109,7 @@ where
 
     // TP, TP + FP, 0
     Ok(py.allow_threads(move || {
-        return (custom_sum(actual * &pred), custom_sum(pred), 0);
+        return (custom_int_sum(actual * &pred), custom_int_sum(pred), 0);
     }))
 }
 
@@ -139,7 +128,7 @@ where
 {
     // TP, TP + FP, 0
     Ok(py.allow_threads(move || {
-        return (custom_sum(actual * &pred), custom_sum(pred), 0);
+        return (custom_int_sum(actual * &pred), custom_int_sum(pred), 0);
     }))
 }
 
@@ -161,7 +150,7 @@ where
 
     // TP, TP + FN, 0
     Ok(py.allow_threads(move || {
-        return (custom_sum(&actual * pred), custom_sum(actual), 0);
+        return (custom_int_sum(&actual * pred), custom_int_sum(actual), 0);
     }))
 }
 
@@ -180,7 +169,7 @@ where
 {
     // TP, TP + FN, 0
     Ok(py.allow_threads(move || {
-        return (custom_sum(&actual * pred), custom_sum(actual), 0);
+        return (custom_int_sum(&actual * pred), custom_int_sum(actual), 0);
     }))
 }
 
@@ -203,9 +192,9 @@ where
     // TP, TP + FP, TP + FN
     Ok(py.allow_threads(move || {
         return (
-            custom_sum(&actual * &pred),
-            custom_sum(pred),
-            custom_sum(actual),
+            custom_int_sum(&actual * &pred),
+            custom_int_sum(pred),
+            custom_int_sum(actual),
         );
     }))
 }
@@ -226,9 +215,9 @@ where
     // TP, TP + FP, TP + FN
     Ok(py.allow_threads(move || {
         return (
-            custom_sum(&actual * &pred),
-            custom_sum(pred),
-            custom_sum(actual),
+            custom_int_sum(&actual * &pred),
+            custom_int_sum(pred),
+            custom_int_sum(actual),
         );
     }))
 }
