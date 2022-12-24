@@ -95,8 +95,8 @@ where
     T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128> + numpy::Element,
 {
     let mut sum = 0;
-    for v in arr.as_array().iter(){
-        sum = sum + (v.clone()).into();
+    for row in arr.as_array().rows(){
+        sum = sum + row.iter().fold(0, |acc, elt| acc + elt.clone().into());
     }
     sum
 }
@@ -110,8 +110,8 @@ where
 {
     let mut sum = 0;
     unsafe{
-        for (v1, v2) in std::iter::zip(arr1.as_array_mut(), arr2.as_array_mut()) {
-            sum = sum + ((*v1).clone() * (*v2).clone()).into();
+        for (r1, r2) in std::iter::zip(arr1.as_array_mut().rows(), arr2.as_array_mut().rows()) {
+            sum = sum + std::iter::zip(r1, r2).fold(0, |acc, elt| acc + (elt.0.clone() * elt.1.clone()).into());
         }
     }
     sum
@@ -130,8 +130,21 @@ where
         + num_traits::Num
         + Into<i128>,
 {
-    // TP, TP + FP, 0
-    Ok((custom_multiply_sum(&actual, &pred), custom_sum(&pred), 0))
+    let mut reqs = (0, 0, 0);
+    unsafe{
+        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
+            let acc_base = (0, 0);
+            let row_reqs = std::iter::zip(r1, r2).fold(acc_base, |acc, elt| {
+                (
+                    acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                    acc.1 + elt.1.clone().into()
+                )
+            });
+            reqs.0 = reqs.0 + row_reqs.0;
+            reqs.1 = reqs.1 + row_reqs.1;
+        }
+    }
+    Ok(reqs)
 }
 
 // fn binary_precision_reqs_owned<'a, T>(
