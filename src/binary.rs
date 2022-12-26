@@ -95,7 +95,7 @@ where
     T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128> + numpy::Element,
 {
     let mut sum = 0;
-    for row in arr.as_array().rows(){
+    for row in arr.as_array().rows() {
         sum = sum + row.iter().fold(0, |acc, elt| acc + elt.clone().into());
     }
     sum
@@ -103,15 +103,22 @@ where
 
 fn custom_multiply_sum<T>(
     arr1: &numpy::PyReadonlyArrayDyn<T>,
-    arr2: &numpy::PyReadonlyArrayDyn<T>
+    arr2: &numpy::PyReadonlyArrayDyn<T>,
 ) -> i128
 where
-    T: Clone + std::ops::Add<Output = T> + std::ops::Mul<Output = T> + num_traits::Num + Into<i128> + numpy::Element,
+    T: Clone
+        + std::ops::Add<Output = T>
+        + std::ops::Mul<Output = T>
+        + num_traits::Num
+        + Into<i128>
+        + numpy::Element,
 {
     let mut sum = 0;
-    unsafe{
+    unsafe {
         for (r1, r2) in std::iter::zip(arr1.as_array_mut().rows(), arr2.as_array_mut().rows()) {
-            sum = sum + std::iter::zip(r1, r2).fold(0, |acc, elt| acc + (elt.0.clone() * elt.1.clone()).into());
+            sum = sum
+                + std::iter::zip(r1, r2)
+                    .fold(0, |acc, elt| acc + (elt.0.clone() * elt.1.clone()).into());
         }
     }
     sum
@@ -131,13 +138,12 @@ where
         + Into<i128>,
 {
     let mut reqs = (0, 0, 0);
-    unsafe{
+    unsafe {
         for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let acc_base = (0, 0);
-            let row_reqs = std::iter::zip(r1, r2).fold(acc_base, |acc, elt| {
+            let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
                 (
                     acc.0 + (elt.0.clone() * elt.1.clone()).into(),
-                    acc.1 + elt.1.clone().into()
+                    acc.1 + elt.1.clone().into(),
                 )
             });
             reqs.0 = reqs.0 + row_reqs.0;

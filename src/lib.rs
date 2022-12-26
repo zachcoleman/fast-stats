@@ -1,5 +1,5 @@
-use pyo3::prelude::*;
 use numpy;
+use pyo3::prelude::*;
 
 mod binary;
 mod cm;
@@ -7,17 +7,13 @@ mod dispatch;
 mod multiclass;
 mod utils;
 
-
 #[pyfunction]
 #[pyo3(name = "_to_owned_iter")]
 #[pyo3(text_signature = "(arr: np.ndarray, /)")]
-pub fn py_to_owned_iter<'a>(
-    _py: Python<'a>,
-    arr: numpy::PyReadonlyArrayDyn<u8>,
-) -> PyResult<u64> {
+pub fn py_to_owned_iter<'a>(_py: Python<'a>, arr: numpy::PyReadonlyArrayDyn<u8>) -> PyResult<u64> {
     let mut sum = 0;
     let owned_arr = arr.to_owned_array();
-    for v in owned_arr.iter(){
+    for v in owned_arr.iter() {
         sum = sum + (*v as u64);
     }
     Ok(sum)
@@ -26,12 +22,9 @@ pub fn py_to_owned_iter<'a>(
 #[pyfunction]
 #[pyo3(name = "_not_owned_iter")]
 #[pyo3(text_signature = "(arr: np.ndarray, /)")]
-pub fn py_not_owned_iter<'a>(
-    _py: Python<'a>,
-    arr: numpy::PyReadonlyArrayDyn<u8>,
-) -> PyResult<u64> {
+pub fn py_not_owned_iter<'a>(_py: Python<'a>, arr: numpy::PyReadonlyArrayDyn<u8>) -> PyResult<u64> {
     let mut sum = 0;
-    for v in arr.as_array().iter(){
+    for v in arr.as_array().iter() {
         sum = sum + (*v as u64);
     }
     Ok(sum)
