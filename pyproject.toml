@@ -1,6 +1,6 @@
 [project]
 name = "fast-stats"
-version = "1.1.0"
+version = "1.2.0"
 description = "A fast and simple library for calculating basic statistics"
 readme = "README.md"
 license = {text="Apache 2.0"}
@@ -36,7 +36,7 @@ test = [
 ]
 
 [build-system]
-requires = ["maturin>=0.12,<0.13"]
+requires = ["maturin>=0.13,<0.14"]
 build-backend = "maturin"
 
 [tool.maturin]
