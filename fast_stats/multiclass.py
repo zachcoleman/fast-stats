@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 import numpy as np
 
 from ._fast_stats_ext import _f1_score, _precision, _recall, _unique
+from .exceptions import ShapeError
 
 Result = Union[None, float, np.ndarray]
 
@@ -39,13 +40,15 @@ def precision(
     Returns:
         precision (np.ndarray): 1D array or scalar values depending on averaging
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
     average = AverageType(average)
 
@@ -95,13 +98,15 @@ def recall(
     Returns:
         recall (np.ndarray): 1D array or scalar values depending on averaging
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
     average = AverageType(average)
 
@@ -151,13 +156,15 @@ def f1_score(
     Returns:
         f1 score (np.ndarray): 1D array or scalar values depending on averaging
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
     average = AverageType(average)
 
@@ -212,13 +219,15 @@ def stats(
         Dict[str, Result]: dictionary of strings to 1D array or scalar values
             depending on averaging
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
     average = AverageType(average)
 
