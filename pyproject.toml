@@ -29,8 +29,9 @@ dependencies = [
 repository = "https://github.com/zachcoleman/fast-stats"
 
 [project.optional-dependencies]
-test = [
+dev = [
   "dictdiffer",
+  "pre-commit",
   "pytest",
   "pytest-cov[all]"
 ]
