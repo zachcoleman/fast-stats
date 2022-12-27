@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.11", "3.10","3.9", "3.8","3.7"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -24,7 +24,12 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install maturin
-          maturin develop --extras=test
+          maturin develop --extras=dev
+      - name: Validate types with mypy
+        run: |
+          source .venv/bin/activate
+          pip install mypy
+          mypy fast_stats/
       - name: Test with pytest
         run: |
           source .venv/bin/activate
