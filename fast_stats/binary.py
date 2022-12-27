@@ -124,23 +124,22 @@ def binary_f1_score(
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(y_true, y_pred)
-    p, r = _precision(tp, tp_fp, zero_division.ZERO), _recall(
-        tp, tp_fn, zero_division.ZERO
+    p, r = _precision(tp, tp_fp, ZeroDivision.ZERO), _recall(
+        tp, tp_fn, ZeroDivision.ZERO
     )
 
-    if p + r == 0:
+    if p + r == 0:  # type: ignore
         if zero_division == ZeroDivision.NONE:
             return None
         elif zero_division == ZeroDivision.ZERO:
             return 0.0
-
-    return 2 * p * r / (p + r)
+    return 2 * p * r / (p + r)  # type: ignore
 
 
 def binary_tp_fp_fn(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-) -> Tuple[float]:
+) -> Tuple[int, int, int]:
     """Binary calculations for TP, FP, and FN
 
     Args:
