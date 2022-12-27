@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install maturin
           maturin develop --extras=test
+      - name: Validate types with mypy
+        run: |
+          source .venv/bin/activate
+          pip install mypy
+          mypy fast_stats/
       - name: Test with pytest
         run: |
           source .venv/bin/activate
