@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 import numpy as np
 
@@ -6,7 +6,9 @@ from ._fast_stats_ext import _confusion_matrix, _unique
 
 
 def confusion_matrix(
-    y_true: np.ndarray, y_pred: np.ndarray, labels: Union[List, np.ndarray] = None
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    labels: Optional[Union[List, np.ndarray]] = None,
 ) -> np.ndarray:
     """Calculation of confusion matrix
 

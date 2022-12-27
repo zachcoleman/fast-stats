@@ -1,12 +1,11 @@
 from enum import Enum
-from functools import partial
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 
 import numpy as np
 
 from ._fast_stats_ext import _f1_score, _precision, _recall, _unique
 
-Result = Union[None, float, np.ndarray]
+Result = Union[None, float, np.floating, np.ndarray]
 
 
 class ZeroDivision(Enum):
@@ -20,10 +19,26 @@ class AverageType(Enum):
     MACRO = "macro"
 
 
+def _get_zero_handler(
+    zero_division: ZeroDivision,
+) -> Callable[[Union[float, np.ndarray]], Union[float, np.ndarray]]:
+    if zero_division == ZeroDivision.NONE:
+
+        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+            return np.where(np.isfinite(x), x, np.nan)
+
+    elif zero_division == zero_division.ZERO:
+
+        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+            return np.where(np.isfinite(x), x, 0.0)
+
+    return zero_handle
+
+
 def precision(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    labels: Union[List, np.ndarray] = None,
+    labels: Optional[Union[List, np.ndarray]] = None,
     zero_division: ZeroDivision = ZeroDivision.NONE,
     average: AverageType = AverageType.NONE,
 ) -> Result:
@@ -57,16 +72,7 @@ def precision(
         labels = np.array(labels, dtype=y_true.dtype)
 
     x = _precision(y_true, y_pred, labels)
-
-    if zero_division == ZeroDivision.NONE:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=np.nan, posinf=np.nan, neginf=np.nan
-        )
-    elif zero_division == zero_division.ZERO:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=0.0, posinf=0.0, neginf=0.0
-        )
-
+    zero_handle = _get_zero_handler(zero_division)
     with np.errstate(divide="ignore", invalid="ignore"):
         if average == AverageType.NONE:
             return zero_handle(x[:, 0] / x[:, 1])
@@ -74,12 +80,13 @@ def precision(
             return zero_handle(x[:, 0].sum() / x[:, 1].sum())
         elif average == AverageType.MACRO:
             return np.nanmean(zero_handle(x[:, 0] / x[:, 1]))
+        return None  # pragma: no cover
 
 
 def recall(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    labels: Union[List, np.ndarray] = None,
+    labels: Optional[Union[List, np.ndarray]] = None,
     zero_division: ZeroDivision = ZeroDivision.NONE,
     average: AverageType = AverageType.NONE,
 ) -> Result:
@@ -113,16 +120,7 @@ def recall(
         labels = np.array(labels, dtype=y_true.dtype)
 
     x = _recall(y_true, y_pred, labels)
-
-    if zero_division == ZeroDivision.NONE:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=np.nan, posinf=np.nan, neginf=np.nan
-        )
-    elif zero_division == zero_division.ZERO:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=0.0, posinf=0.0, neginf=0.0
-        )
-
+    zero_handle = _get_zero_handler(zero_division)
     with np.errstate(divide="ignore", invalid="ignore"):
         if average == AverageType.NONE:
             return zero_handle(x[:, 0] / x[:, 1])
@@ -130,12 +128,13 @@ def recall(
             return zero_handle(x[:, 0].sum() / x[:, 1].sum())
         elif average == AverageType.MACRO:
             return np.nanmean(zero_handle(x[:, 0] / x[:, 1]))
+        return None  # pragma: no cover
 
 
 def f1_score(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    labels: Union[List, np.ndarray] = None,
+    labels: Optional[Union[List, np.ndarray]] = None,
     zero_division: ZeroDivision = ZeroDivision.NONE,
     average: AverageType = AverageType.NONE,
 ) -> Result:
@@ -169,15 +168,7 @@ def f1_score(
         labels = np.array(labels, dtype=y_true.dtype)
 
     x = _f1_score(y_true, y_pred, labels)
-
-    if zero_division == ZeroDivision.NONE:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=np.nan, posinf=np.nan, neginf=np.nan
-        )
-    elif zero_division == zero_division.ZERO:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=0.0, posinf=0.0, neginf=0.0
-        )
+    zero_handle = _get_zero_handler(zero_division)
 
     def f1_from_ext(x, y, z):
         p, r = x / y, x / z
@@ -190,12 +181,13 @@ def f1_score(
             return zero_handle(f1_from_ext(x[:, 0].sum(), x[:, 1].sum(), x[:, 2].sum()))
         elif average == AverageType.MACRO:
             return np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2]))
+        return None  # pragma: no cover
 
 
 def stats(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    labels: Union[List, np.ndarray] = None,
+    labels: Optional[Union[List, np.ndarray]] = None,
     zero_division: ZeroDivision = ZeroDivision.NONE,
     average: AverageType = AverageType.NONE,
 ) -> Dict[str, Result]:
@@ -230,21 +222,13 @@ def stats(
         labels = np.array(labels, dtype=y_true.dtype)
 
     x = _f1_score(y_true, y_pred, labels)
-
-    if zero_division == ZeroDivision.NONE:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=np.nan, posinf=np.nan, neginf=np.nan
-        )
-    elif zero_division == zero_division.ZERO:
-        zero_handle = partial(
-            np.nan_to_num, copy=False, nan=0.0, posinf=0.0, neginf=0.0
-        )
+    zero_handle = _get_zero_handler(zero_division)
 
     def f1_from_ext(x, y, z):
         p, r = x / y, x / z
         return 2 * p * r / (p + r)
 
-    stats = dict()
+    stats: Dict[str, Result] = dict()
 
     # precision
     with np.errstate(divide="ignore", invalid="ignore"):

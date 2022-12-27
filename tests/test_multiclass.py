@@ -579,3 +579,12 @@ def test_f1_score(y_true, y_pred, kwargs, expected):
 )
 def test_stats(y_true, y_pred, kwargs, expected):
     assert len(list(diff(fast_stats.stats(y_true, y_pred, **kwargs), expected))) == 0
+
+
+def test_bad_average():
+    with pytest.raises(ValueError):
+        fast_stats.precision(
+            np.array([1, 2, 3, 1, 2, 3], dtype=np.uint64),
+            np.array([1, 2, 3, 2, 3, 1], dtype=np.uint64),
+            average="bad",
+        )
