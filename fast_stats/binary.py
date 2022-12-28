@@ -8,6 +8,7 @@ from ._fast_stats_ext import (
     _binary_precision_reqs,
     _binary_recall_reqs,
 )
+from .exceptions import ShapeError
 
 Result = Union[None, float]
 
@@ -53,13 +54,15 @@ def binary_precision(
     Returns:
         Result: None or float depending on values and zero division
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fp, _ = _binary_precision_reqs(y_true, y_pred)
@@ -80,13 +83,15 @@ def binary_recall(
     Returns:
         Result: None or float depending on values and zero division
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fn, _ = _binary_recall_reqs(y_true, y_pred)
@@ -107,33 +112,34 @@ def binary_f1_score(
     Returns:
         Result: None or float depending on values and zero division
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(y_true, y_pred)
-    p, r = _precision(tp, tp_fp, zero_division.ZERO), _recall(
-        tp, tp_fn, zero_division.ZERO
+    p, r = _precision(tp, tp_fp, ZeroDivision.ZERO), _recall(
+        tp, tp_fn, ZeroDivision.ZERO
     )
 
-    if p + r == 0:
+    if p + r == 0:  # type: ignore
         if zero_division == ZeroDivision.NONE:
             return None
         elif zero_division == ZeroDivision.ZERO:
             return 0.0
-
-    return 2 * p * r / (p + r)
+    return 2 * p * r / (p + r)  # type: ignore
 
 
 def binary_tp_fp_fn(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-) -> Tuple[float]:
+) -> Tuple[int, int, int]:
     """Binary calculations for TP, FP, and FN
 
     Args:
@@ -142,13 +148,15 @@ def binary_tp_fp_fn(
     Returns:
         Tuple[int]: counts for TP, FP, and FN
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(y_true, y_pred)
     fp, fn = tp_fp - tp, tp_fn - tp
@@ -168,13 +176,15 @@ def binary_stats(
     Returns:
         Dict[str, Result]: stats for precision, recall and f1-score
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(y_true, y_pred)

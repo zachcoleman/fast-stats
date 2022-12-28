@@ -1,0 +1,26 @@
+from typing import List, Set, Tuple, Union
+
+import numpy as np
+
+def _binary_precision_reqs(
+    actual: np.ndarray, pred: np.ndarray
+) -> Tuple[int, int, int]: ...
+def _binary_recall_reqs(
+    actual: np.ndarray, pred: np.ndarray
+) -> Tuple[int, int, int]: ...
+def _binary_f1_score_reqs(
+    actual: np.ndarray, pred: np.ndarray
+) -> Tuple[int, int, int]: ...
+def _precision(
+    actual: np.ndarray, pred: np.ndarray, labels: Union[List, np.ndarray]
+) -> np.ndarray: ...
+def _recall(
+    actual: np.ndarray, pred: np.ndarray, labels: Union[List, np.ndarray]
+) -> np.ndarray: ...
+def _f1_score(
+    actual: np.ndarray, pred: np.ndarray, labels: Union[List, np.ndarray]
+) -> np.ndarray: ...
+def _confusion_matrix(
+    actual: np.ndarray, pred: np.ndarray, labels: Union[List, np.ndarray]
+) -> np.ndarray: ...
+def _unique(arr: np.ndarray) -> Set: ...

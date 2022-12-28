@@ -1,12 +1,15 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 import numpy as np
 
 from ._fast_stats_ext import _confusion_matrix, _unique
+from .exceptions import ShapeError
 
 
 def confusion_matrix(
-    y_true: np.ndarray, y_pred: np.ndarray, labels: Union[List, np.ndarray] = None
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    labels: Optional[Union[List, np.ndarray]] = None,
 ) -> np.ndarray:
     """Calculation of confusion matrix
 
@@ -18,13 +21,15 @@ def confusion_matrix(
     Returns:
         confusion matrix (np.ndarray): 2D np.ndarray confusion matrix
     """
-    assert y_true.shape == y_pred.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(y_pred, np.ndarray),
             isinstance(y_true, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if y_true.shape != y_pred.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
 
     if labels is None:
         labels = np.array(

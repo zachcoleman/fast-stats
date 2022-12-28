@@ -1,6 +1,6 @@
 [project]
 name = "fast-stats"
-version = "1.2.0"
+version = "1.2.1"
 description = "A fast and simple library for calculating basic statistics"
 readme = "README.md"
 license = {text="Apache 2.0"}
@@ -29,8 +29,9 @@ dependencies = [
 repository = "https://github.com/zachcoleman/fast-stats"
 
 [project.optional-dependencies]
-test = [
+dev = [
   "dictdiffer",
+  "pre-commit",
   "pytest",
   "pytest-cov[all]"
 ]
@@ -45,3 +46,6 @@ strip = true
 
 [tool.isort]
 profile="black"
+
+[tool.bandit]
+exclude_dirs=["tests"]
