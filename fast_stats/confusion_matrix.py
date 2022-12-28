@@ -28,7 +28,7 @@ def confusion_matrix(
 
     if labels is None:
         labels = np.array(
-            sorted(list(_unique(np.concatenate([y_true, y_pred])))), dtype=y_true.dtype
+            sorted(list(_unique(y_true).union(_unique(y_pred)))), dtype=y_true.dtype
         )
     elif isinstance(labels, list):
         labels = np.array(labels, dtype=y_true.dtype)
