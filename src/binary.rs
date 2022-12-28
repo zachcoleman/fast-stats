@@ -92,17 +92,15 @@ where
         + Into<i128>,
 {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() * elt.1.clone()).into(),
-                    acc.1 + elt.0.clone().into(),
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.0.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
     }
     Ok(reqs)
 }
@@ -113,17 +111,15 @@ fn binary_precision_reqs_bool<'a>(
     pred: numpy::PyReadonlyArrayDyn<bool>,
 ) -> PyResult<(i128, i128, i128)> {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
-                    acc.1 + (elt.0.clone()) as i128,
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.0.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
     }
     Ok(reqs)
 }
@@ -142,17 +138,15 @@ where
         + Into<i128>,
 {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() * elt.1.clone()).into(),
-                    acc.1 + elt.1.clone().into(),
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.1.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
     }
     Ok(reqs)
 }
@@ -163,17 +157,15 @@ fn binary_recall_reqs_bool<'a>(
     pred: numpy::PyReadonlyArrayDyn<bool>,
 ) -> PyResult<(i128, i128, i128)> {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
-                    acc.1 + (elt.1.clone()) as i128,
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.1.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
     }
     Ok(reqs)
 }
@@ -192,19 +184,17 @@ where
         + Into<i128>,
 {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() * elt.1.clone()).into(),
-                    acc.1 + elt.0.clone().into(),
-                    acc.2 + elt.1.clone().into(),
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-            reqs.2 = reqs.2 + row_reqs.2;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.0.clone().into(),
+                acc.2 + elt.1.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+        reqs.2 = reqs.2 + row_reqs.2;
     }
     Ok(reqs)
 }
@@ -215,19 +205,17 @@ fn binary_f1_score_reqs_bool<'a>(
     pred: numpy::PyReadonlyArrayDyn<bool>,
 ) -> PyResult<(i128, i128, i128)> {
     let mut reqs = (0, 0, 0);
-    unsafe {
-        for (r1, r2) in std::iter::zip(pred.as_array_mut().rows(), actual.as_array_mut().rows()) {
-            let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
-                (
-                    acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
-                    acc.1 + (elt.0.clone()) as i128,
-                    acc.2 + (elt.1.clone()) as i128,
-                )
-            });
-            reqs.0 = reqs.0 + row_reqs.0;
-            reqs.1 = reqs.1 + row_reqs.1;
-            reqs.2 = reqs.2 + row_reqs.2;
-        }
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.0.clone()) as i128,
+                acc.2 + (elt.1.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+        reqs.2 = reqs.2 + row_reqs.2;
     }
     Ok(reqs)
 }

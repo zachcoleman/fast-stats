@@ -43,11 +43,9 @@ where
             .enumerate()
             .map(|(x, y)| (y.clone(), x.clone())),
     );
-    unsafe {
-        for (y_pred, y_actual) in zip(pred.as_array_mut().iter(), actual.as_array_mut().iter()) {
-            if let (Some(ix1), Some(ix2)) = (idx_map.get(y_actual), idx_map.get(y_pred)) {
-                *cm.get_mut((*ix1, *ix2)).unwrap() = *cm.get_mut((*ix1, *ix2)).unwrap() + 1;
-            }
+    for (y_pred, y_actual) in zip(pred.as_array().iter(), actual.as_array().iter()) {
+        if let (Some(ix1), Some(ix2)) = (idx_map.get(y_actual), idx_map.get(y_pred)) {
+            *cm.get_mut((*ix1, *ix2)).unwrap() = *cm.get_mut((*ix1, *ix2)).unwrap() + 1;
         }
     }
     cm

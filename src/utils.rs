@@ -19,12 +19,10 @@ where
 {
     let mut track = HashSet::<T>::new();
     let mut ret: Vec<T> = vec![];
-    unsafe {
-        for val in arr.as_array_mut().iter() {
-            if !track.contains(val) {
-                track.insert(val.clone());
-                ret.push(val.clone());
-            }
+    for val in arr.as_array().iter() {
+        if !track.contains(val) {
+            track.insert(val.clone());
+            ret.push(val.clone());
         }
     }
     PySet::new(py, ret.as_slice())
