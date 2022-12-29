@@ -79,25 +79,15 @@ fn precision<'a, T>(
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-    let labels = labels.to_vec().unwrap();
-
-    let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<i64> {
-            py.allow_threads(move || {
-                let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 2), 0);
-                for (idx, col) in cm.columns().into_iter().enumerate() {
-                    // get TP
-                    *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();
-                    // get TP + FP
-                    *ret.get_mut((idx, 1)).unwrap() = col.sum();
-                }
-                return ret;
-            })
-        };
-    Ok(PyArray2::from_array(py, &threadable(actual, pred)))
+    let cm = cm::_confusion_matrix(py, actual, pred, labels);
+    let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 2), 0);
+    for (idx, col) in cm.columns().into_iter().enumerate() {
+        // get TP
+        *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();
+        // get TP + FP
+        *ret.get_mut((idx, 1)).unwrap() = col.sum();
+    }
+    Ok(PyArray2::from_array(py, &ret))
 }
 
 fn recall<'a, T>(
@@ -109,25 +99,15 @@ fn recall<'a, T>(
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-    let labels = labels.to_vec().unwrap();
-
-    let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<i64> {
-            py.allow_threads(move || {
-                let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 2), 0);
-                for (idx, row) in cm.rows().into_iter().enumerate() {
-                    // get TP
-                    *ret.get_mut((idx, 0)).unwrap() = *row.get(idx).unwrap();
-                    // get TP + FN
-                    *ret.get_mut((idx, 1)).unwrap() = row.sum();
-                }
-                return ret;
-            })
-        };
-    Ok(PyArray2::from_array(py, &threadable(actual, pred)))
+    let cm = cm::_confusion_matrix(py, actual, pred, labels);
+    let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 2), 0);
+    for (idx, row) in cm.rows().into_iter().enumerate() {
+        // get TP
+        *ret.get_mut((idx, 0)).unwrap() = *row.get(idx).unwrap();
+        // get TP + FN
+        *ret.get_mut((idx, 1)).unwrap() = row.sum();
+    }
+    Ok(PyArray2::from_array(py, &ret))
 }
 
 fn f1_score<'a, T>(
@@ -139,27 +119,17 @@ fn f1_score<'a, T>(
 where
     T: Copy + Clone + std::marker::Send + numpy::Element + std::hash::Hash + std::cmp::Eq,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-    let labels = labels.to_vec().unwrap();
-
-    let threadable =
-        |actual: ndarray::ArrayD<T>, pred: ndarray::ArrayD<T>| -> ndarray::Array2<i64> {
-            py.allow_threads(move || {
-                let cm = cm::confusion_matrix_owned(actual, pred, labels);
-                let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 3), 0);
-                for (idx, col) in cm.columns().into_iter().enumerate() {
-                    // get TP
-                    *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();
-                    // get TP + FP
-                    *ret.get_mut((idx, 1)).unwrap() = col.sum();
-                }
-                for (idx, row) in cm.rows().into_iter().enumerate() {
-                    // get TP + FN
-                    *ret.get_mut((idx, 2)).unwrap() = row.sum();
-                }
-                return ret;
-            })
-        };
-    Ok(PyArray2::from_array(py, &threadable(actual, pred)))
+    let cm = cm::_confusion_matrix(py, actual, pred, labels);
+    let mut ret = ndarray::Array2::<i64>::from_elem((cm.shape()[0], 3), 0);
+    for (idx, col) in cm.columns().into_iter().enumerate() {
+        // get TP
+        *ret.get_mut((idx, 0)).unwrap() = *col.get(idx).unwrap();
+        // get TP + FP
+        *ret.get_mut((idx, 1)).unwrap() = col.sum();
+    }
+    for (idx, row) in cm.rows().into_iter().enumerate() {
+        // get TP + FN
+        *ret.get_mut((idx, 2)).unwrap() = row.sum();
+    }
+    Ok(PyArray2::from_array(py, &ret))
 }

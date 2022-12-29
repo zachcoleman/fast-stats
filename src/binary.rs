@@ -16,20 +16,16 @@ pub fn py_binary_precision_reqs<'a>(
         actual.extract::<PyReadonlyArrayDyn<bool>>(),
         pred.extract::<PyReadonlyArrayDyn<bool>>(),
     ) {
-        return binary_precision_reqs_owned::<u8>(
+        binary_precision_reqs_bool(py, i, j)
+    } else {
+        numpy_dispatch_no_bool!(
             py,
-            i.to_owned_array().mapv(|e| e as u8),
-            j.to_owned_array().mapv(|e| e as u8),
-        );
+            binary_precision_reqs,
+            PyResult<(i128, i128, i128)>,
+            actual,
+            pred
+        )
     }
-
-    numpy_dispatch_no_bool!(
-        py,
-        binary_precision_reqs,
-        PyResult<(i128, i128, i128)>,
-        actual,
-        pred
-    )
 }
 
 /// Binary recall computational requirements
@@ -45,20 +41,16 @@ pub fn py_binary_recall_reqs<'a>(
         actual.extract::<PyReadonlyArrayDyn<bool>>(),
         pred.extract::<PyReadonlyArrayDyn<bool>>(),
     ) {
-        return binary_recall_reqs_owned::<u8>(
+        binary_recall_reqs_bool(py, i, j)
+    } else {
+        numpy_dispatch_no_bool!(
             py,
-            i.to_owned_array().mapv(|e| e as u8),
-            j.to_owned_array().mapv(|e| e as u8),
-        );
+            binary_recall_reqs,
+            PyResult<(i128, i128, i128)>,
+            actual,
+            pred
+        )
     }
-
-    numpy_dispatch_no_bool!(
-        py,
-        binary_recall_reqs,
-        PyResult<(i128, i128, i128)>,
-        actual,
-        pred
-    )
 }
 
 /// Binary f1 computational requirements
@@ -74,36 +66,20 @@ pub fn py_binary_f1_score_reqs<'a>(
         actual.extract::<PyReadonlyArrayDyn<bool>>(),
         pred.extract::<PyReadonlyArrayDyn<bool>>(),
     ) {
-        return binary_f1_score_reqs_owned::<u8>(
+        binary_f1_score_reqs_bool(py, i, j)
+    } else {
+        numpy_dispatch_no_bool!(
             py,
-            i.to_owned_array().mapv(|e| e as u8),
-            j.to_owned_array().mapv(|e| e as u8),
-        );
+            binary_f1_score_reqs,
+            PyResult<(i128, i128, i128)>,
+            actual,
+            pred
+        )
     }
-
-    numpy_dispatch_no_bool!(
-        py,
-        binary_f1_score_reqs,
-        PyResult<(i128, i128, i128)>,
-        actual,
-        pred
-    )
-}
-
-// move into utils?
-fn custom_sum<T>(arr: ndarray::ArrayD<T>) -> i128
-where
-    T: Clone + std::ops::Add<Output = T> + num_traits::Num + Into<i128>,
-{
-    let mut sum = 0;
-    for row in arr.rows() {
-        sum = sum + row.iter().fold(0, |acc, elt| acc + elt.clone().into());
-    }
-    sum
 }
 
 fn binary_precision_reqs<'a, T>(
-    py: Python<'a>,
+    _py: Python<'a>,
     actual: numpy::PyReadonlyArrayDyn<T>,
     pred: numpy::PyReadonlyArrayDyn<T>,
 ) -> PyResult<(i128, i128, i128)>
@@ -115,36 +91,41 @@ where
         + num_traits::Num
         + Into<i128>,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-
-    // TP, TP + FP, 0
-    Ok(py.allow_threads(move || {
-        return (custom_sum(actual * &pred), custom_sum(pred), 0);
-    }))
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.0.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+    }
+    Ok(reqs)
 }
 
-fn binary_precision_reqs_owned<'a, T>(
-    py: Python<'a>,
-    actual: ndarray::ArrayD<T>,
-    pred: ndarray::ArrayD<T>,
-) -> PyResult<(i128, i128, i128)>
-where
-    T: Clone
-        + std::marker::Send
-        + numpy::Element
-        + std::ops::Add<Output = T>
-        + num_traits::Num
-        + Into<i128>,
-{
-    // TP, TP + FP, 0
-    Ok(py.allow_threads(move || {
-        return (custom_sum(actual * &pred), custom_sum(pred), 0);
-    }))
+fn binary_precision_reqs_bool<'a>(
+    _py: Python<'a>,
+    actual: numpy::PyReadonlyArrayDyn<bool>,
+    pred: numpy::PyReadonlyArrayDyn<bool>,
+) -> PyResult<(i128, i128, i128)> {
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.0.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+    }
+    Ok(reqs)
 }
 
 fn binary_recall_reqs<'a, T>(
-    py: Python<'a>,
+    _py: Python<'a>,
     actual: numpy::PyReadonlyArrayDyn<T>,
     pred: numpy::PyReadonlyArrayDyn<T>,
 ) -> PyResult<(i128, i128, i128)>
@@ -156,36 +137,41 @@ where
         + num_traits::Num
         + Into<i128>,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-
-    // TP, TP + FN, 0
-    Ok(py.allow_threads(move || {
-        return (custom_sum(&actual * pred), custom_sum(actual), 0);
-    }))
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.1.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+    }
+    Ok(reqs)
 }
 
-fn binary_recall_reqs_owned<'a, T>(
-    py: Python<'a>,
-    actual: ndarray::ArrayD<T>,
-    pred: ndarray::ArrayD<T>,
-) -> PyResult<(i128, i128, i128)>
-where
-    T: Clone
-        + std::marker::Send
-        + numpy::Element
-        + std::ops::Add<Output = T>
-        + num_traits::Num
-        + Into<i128>,
-{
-    // TP, TP + FN, 0
-    Ok(py.allow_threads(move || {
-        return (custom_sum(&actual * pred), custom_sum(actual), 0);
-    }))
+fn binary_recall_reqs_bool<'a>(
+    _py: Python<'a>,
+    actual: numpy::PyReadonlyArrayDyn<bool>,
+    pred: numpy::PyReadonlyArrayDyn<bool>,
+) -> PyResult<(i128, i128, i128)> {
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.1.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+    }
+    Ok(reqs)
 }
 
 fn binary_f1_score_reqs<'a, T>(
-    py: Python<'a>,
+    _py: Python<'a>,
     actual: numpy::PyReadonlyArrayDyn<T>,
     pred: numpy::PyReadonlyArrayDyn<T>,
 ) -> PyResult<(i128, i128, i128)>
@@ -197,38 +183,39 @@ where
         + num_traits::Num
         + Into<i128>,
 {
-    let actual = actual.to_owned_array();
-    let pred = pred.to_owned_array();
-
-    // TP, TP + FP, TP + FN
-    Ok(py.allow_threads(move || {
-        return (
-            custom_sum(&actual * &pred),
-            custom_sum(pred),
-            custom_sum(actual),
-        );
-    }))
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() * elt.1.clone()).into(),
+                acc.1 + elt.0.clone().into(),
+                acc.2 + elt.1.clone().into(),
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+        reqs.2 = reqs.2 + row_reqs.2;
+    }
+    Ok(reqs)
 }
 
-fn binary_f1_score_reqs_owned<'a, T>(
-    py: Python<'a>,
-    actual: ndarray::ArrayD<T>,
-    pred: ndarray::ArrayD<T>,
-) -> PyResult<(i128, i128, i128)>
-where
-    T: Clone
-        + std::marker::Send
-        + numpy::Element
-        + std::ops::Add<Output = T>
-        + num_traits::Num
-        + Into<i128>,
-{
-    // TP, TP + FP, TP + FN
-    Ok(py.allow_threads(move || {
-        return (
-            custom_sum(&actual * &pred),
-            custom_sum(pred),
-            custom_sum(actual),
-        );
-    }))
+fn binary_f1_score_reqs_bool<'a>(
+    _py: Python<'a>,
+    actual: numpy::PyReadonlyArrayDyn<bool>,
+    pred: numpy::PyReadonlyArrayDyn<bool>,
+) -> PyResult<(i128, i128, i128)> {
+    let mut reqs = (0, 0, 0);
+    for (r1, r2) in std::iter::zip(pred.as_array().rows(), actual.as_array().rows()) {
+        let row_reqs = std::iter::zip(r1, r2).fold((0, 0, 0), |acc, elt| {
+            (
+                acc.0 + (elt.0.clone() & elt.1.clone()) as i128,
+                acc.1 + (elt.0.clone()) as i128,
+                acc.2 + (elt.1.clone()) as i128,
+            )
+        });
+        reqs.0 = reqs.0 + row_reqs.0;
+        reqs.1 = reqs.1 + row_reqs.1;
+        reqs.2 = reqs.2 + row_reqs.2;
+    }
+    Ok(reqs)
 }
