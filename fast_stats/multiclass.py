@@ -22,15 +22,15 @@ class AverageType(Enum):
 
 def _get_zero_handler(
     zero_division: ZeroDivision,
-) -> Callable[[Union[float, np.ndarray]], Union[float, np.ndarray]]:
+) -> Callable[[Union[float, np.ndarray]], np.ndarray]:
     if zero_division == ZeroDivision.NONE:
 
-        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        def zero_handle(x: Union[float, np.ndarray]) -> np.ndarray:
             return np.where(np.isfinite(x), x, np.nan)
 
     elif zero_division == zero_division.ZERO:
 
-        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        def zero_handle(x: Union[float, np.ndarray]) -> np.ndarray:
             return np.where(np.isfinite(x), x, 0.0)
 
     return zero_handle
