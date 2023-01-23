@@ -110,7 +110,7 @@ import fast_stats
                 dtype=np.uint64,
             ),
             {"average": "micro", "zero_division": "none"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% micro
         (
             np.array(
@@ -136,7 +136,7 @@ import fast_stats
                 dtype=np.uint64,
             ),
             {"average": "macro", "zero_division": "zero"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% macro
     ],
 )
@@ -249,7 +249,7 @@ def test_precision(y_true, y_pred, kwargs, expected):
                 dtype=np.uint64,
             ),
             {"average": "micro", "zero_division": "none"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% micro
         (
             np.array(
@@ -275,7 +275,7 @@ def test_precision(y_true, y_pred, kwargs, expected):
                 dtype=np.uint64,
             ),
             {"average": "macro", "zero_division": "zero"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% macro
     ],
 )
@@ -388,7 +388,7 @@ def test_recall(y_true, y_pred, kwargs, expected):
                 dtype=np.uint64,
             ),
             {"average": "micro", "zero_division": "none"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% micro
         (
             np.array(
@@ -414,7 +414,7 @@ def test_recall(y_true, y_pred, kwargs, expected):
                 dtype=np.uint64,
             ),
             {"average": "macro", "zero_division": "zero"},
-            np.array([0.5]),
+            0.5,
         ),  # 50% macro
     ],
 )
