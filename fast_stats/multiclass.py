@@ -22,15 +22,15 @@ class AverageType(Enum):
 
 def _get_zero_handler(
     zero_division: ZeroDivision,
-) -> Callable[[Union[float, np.ndarray]], Union[float, np.ndarray]]:
+) -> Callable[[Union[float, np.ndarray]], np.ndarray]:
     if zero_division == ZeroDivision.NONE:
 
-        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        def zero_handle(x: Union[float, np.ndarray]) -> np.ndarray:
             return np.where(np.isfinite(x), x, np.nan)
 
     elif zero_division == zero_division.ZERO:
 
-        def zero_handle(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        def zero_handle(x: Union[float, np.ndarray]) -> np.ndarray:
             return np.where(np.isfinite(x), x, 0.0)
 
     return zero_handle
@@ -80,9 +80,9 @@ def precision(
         if average == AverageType.NONE:
             return zero_handle(x[:, 0] / x[:, 1])
         elif average == AverageType.MICRO:
-            return zero_handle(x[:, 0].sum() / x[:, 1].sum())
+            return zero_handle(x[:, 0].sum() / x[:, 1].sum()).item()
         elif average == AverageType.MACRO:
-            return np.nanmean(zero_handle(x[:, 0] / x[:, 1]))
+            return np.nanmean(zero_handle(x[:, 0] / x[:, 1])).item()
         return None  # pragma: no cover
 
 
@@ -130,9 +130,9 @@ def recall(
         if average == AverageType.NONE:
             return zero_handle(x[:, 0] / x[:, 1])
         elif average == AverageType.MICRO:
-            return zero_handle(x[:, 0].sum() / x[:, 1].sum())
+            return zero_handle(x[:, 0].sum() / x[:, 1].sum()).item()
         elif average == AverageType.MACRO:
-            return np.nanmean(zero_handle(x[:, 0] / x[:, 1]))
+            return np.nanmean(zero_handle(x[:, 0] / x[:, 1])).item()
         return None  # pragma: no cover
 
 
@@ -185,9 +185,11 @@ def f1_score(
         if average == AverageType.NONE:
             return zero_handle(f1_from_ext(x[:, 0], x[:, 1], x[:, 2]))
         elif average == AverageType.MICRO:
-            return zero_handle(f1_from_ext(x[:, 0].sum(), x[:, 1].sum(), x[:, 2].sum()))
+            return zero_handle(
+                f1_from_ext(x[:, 0].sum(), x[:, 1].sum(), x[:, 2].sum())
+            ).item()
         elif average == AverageType.MACRO:
-            return np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2]))
+            return np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2])).item()
         return None  # pragma: no cover
 
 
@@ -244,18 +246,22 @@ def stats(
         if average == AverageType.NONE:
             stats.update({"precision": zero_handle(x[:, 0] / x[:, 1])})
         elif average == AverageType.MICRO:
-            stats.update({"precision": zero_handle(x[:, 0].sum() / x[:, 1].sum())})
+            stats.update(
+                {"precision": zero_handle(x[:, 0].sum() / x[:, 1].sum()).item()}
+            )
         elif average == AverageType.MACRO:
-            stats.update({"precision": np.nanmean(zero_handle(x[:, 0] / x[:, 1]))})
+            stats.update(
+                {"precision": np.nanmean(zero_handle(x[:, 0] / x[:, 1])).item()}
+            )
 
     # recall
     with np.errstate(divide="ignore", invalid="ignore"):
         if average == AverageType.NONE:
             stats.update({"recall": zero_handle(x[:, 0] / x[:, 2])})
         elif average == AverageType.MICRO:
-            stats.update({"recall": zero_handle(x[:, 0].sum() / x[:, 2].sum())})
+            stats.update({"recall": zero_handle(x[:, 0].sum() / x[:, 2].sum()).item()})
         elif average == AverageType.MACRO:
-            stats.update({"recall": np.nanmean(zero_handle(x[:, 0] / x[:, 2]))})
+            stats.update({"recall": np.nanmean(zero_handle(x[:, 0] / x[:, 2])).item()})
 
     # f1-score
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -268,12 +274,12 @@ def stats(
                 {
                     "f1-score": zero_handle(
                         f1_from_ext(x[:, 0].sum(), x[:, 1].sum(), x[:, 2].sum())
-                    )
+                    ).item()
                 }
             )
         elif average == AverageType.MACRO:
             stats.update(
-                {"f1-score": np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2]))}
+                {"f1-score": np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2])).item()}
             )
 
     return stats
