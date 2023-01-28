@@ -4,6 +4,7 @@ from typing import Union
 import numpy as np
 
 from ._fast_stats_ext import _binary_f1_score_reqs
+from .exceptions import ShapeError
 
 Result = Union[None, float]
 
@@ -29,7 +30,7 @@ def iou(
     array2: np.ndarray,
     zero_division: ZeroDivision = ZeroDivision.NONE,
 ) -> Result:
-    """Calculation for IoU
+    """Calculation for IoU (Intersection over Union) for binary arrays.
 
     Args:
         array1 (np.ndarray): array of 0/1 values (must be bool or int types)
@@ -38,13 +39,15 @@ def iou(
     Returns:
         Result: None or float depending on values and zero division
     """
-    assert array1.shape == array2.shape, "y_true and y_pred must be same shape"
-    assert all(
+    if not all(
         [
             isinstance(array1, np.ndarray),
             isinstance(array2, np.ndarray),
         ]
-    ), "y_true and y_pred must be numpy arrays"
+    ):
+        raise TypeError("y_true and y_pred must be numpy arrays")
+    if array1.shape != array2.shape:
+        raise ShapeError("y_true and y_pred must be same shape")
     zero_division = ZeroDivision(zero_division)
 
     tp, tp_fp, tp_fn = _binary_f1_score_reqs(array1, array2)

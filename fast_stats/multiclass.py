@@ -282,4 +282,9 @@ def stats(
                 {"f1-score": np.nanmean(f1_from_ext(x[:, 0], x[:, 1], x[:, 2])).item()}
             )
 
+    # for none average add labels and support
+    if average == AverageType.NONE:
+        stats.update({"labels": labels})
+        stats.update({"support": x[:, 2]})  # support total y_true (TP + FN)
+
     return stats

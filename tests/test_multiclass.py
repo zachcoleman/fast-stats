@@ -453,6 +453,8 @@ def test_f1_score(y_true, y_pred, kwargs, expected):
                 "precision": np.array([1.0, 1.0, 1.0]),
                 "recall": np.array([1.0, 1.0, 1.0]),
                 "f1-score": np.array([1.0, 1.0, 1.0]),
+                "labels": np.array([1, 2, 3]),
+                "support": np.array([2, 2, 2]),
             },
         ),  # perfect
         (
@@ -483,6 +485,8 @@ def test_f1_score(y_true, y_pred, kwargs, expected):
                 "precision": np.array([0.5, 0.5, 0.5]),
                 "recall": np.array([0.5, 0.5, 0.5]),
                 "f1-score": np.array([0.5, 0.5, 0.5]),
+                "labels": np.array([1, 2, 3]),
+                "support": np.array([2, 2, 2]),
             },
         ),  # 50%
         (
@@ -513,6 +517,8 @@ def test_f1_score(y_true, y_pred, kwargs, expected):
                 "precision": np.array([0.5, 0.5]),
                 "recall": np.array([0.5, 0.5]),
                 "f1-score": np.array([0.5, 0.5]),
+                "labels": np.array([1, 2]),
+                "support": np.array([2, 2]),
             },
         ),  # 50% subset
         (
