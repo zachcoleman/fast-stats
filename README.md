@@ -6,7 +6,15 @@
 # fast-stats
 `fast-stats` is a fast and simple library for calculating basic statistics such as: precision, recall, and f1-score. The library also supports the calculation of confusion matrices. For examples, please look at the `examples/` folder.
 
-The project was developed using the [maturin](https://maturin.rs) framework.
+`fast-stats` is designed and tested against the `scikit-learn` library and provides formatted results to be a drop-in replacement in most cases. There are both generic functions like `fast_stats.precision` that provide significant speedup and specialized binary functions such as `fast_stats.binary_precision` that provide even faster optimal performance for binary data. `fast-stats` was specifically created to provide a limited alternative to `scikit-learn.metrics` for calculating statistics quickly on large multi-dimensional arrays or tensors such as those produced by computer vision models.
+
+[Benchmarks](`examples/benchmarks.ipynb`) show approximately: 
+- 100 times improvement in binary calculations
+- 10 times improvement in multiclass calculations
+- 2 times improvement in computing confusion matrices
+- 15% speed-up over an equivalent `numpy` binary calculation
+
+The project was developed using the [maturin](https://maturin.rs) framework. 
 
 See docs here: https://zachcoleman.github.io/fast-stats/
 
