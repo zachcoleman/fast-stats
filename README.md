@@ -8,7 +8,7 @@
 
 `fast-stats` is designed and tested against the `scikit-learn` library and provides formatted results to be a drop-in replacement in most cases. There are both generic functions like `fast_stats.precision` that provide significant speedup and specialized binary functions such as `fast_stats.binary_precision` that provide even faster optimal performance for binary data. `fast-stats` was specifically created to provide a limited alternative to `scikit-learn.metrics` for calculating statistics quickly on large multi-dimensional arrays or tensors such as those produced by computer vision models.
 
-[Benchmarks](`examples/benchmarks.ipynb`) show approximately: 
+[Benchmarks](examples/benchmarks.ipynb) show approximately: 
 - 100x improvement in binary calculations
 - 10x improvement in multiclass calculations
 - 2x improvement in computing confusion matrices
